@@ -1,4 +1,4 @@
-import {CARD_HEIGHT, CARD_WIDTH, type CardType} from "./Card";
+import {CARD_HEIGHT, CARD_WIDTH, type CardType} from "./Card"
 
 export const CardPreview = ({value, color}: Pick<CardType, "value" | "color">) => {
     return (
@@ -16,7 +16,7 @@ export const CardPreview = ({value, color}: Pick<CardType, "value" | "color">) =
                 boxShadow: "0 10px 30px rgba(0,0,0,0.3)",
             }}
         >
-            {value}
+            <span className="text-3xl">{value}</span>
         </div>
     )
 }

@@ -1,16 +1,18 @@
+import {useDraggable} from "@dnd-kit/core"
 import {motion} from "motion/react"
-import {CSS} from "@dnd-kit/utilities";
-import {useDraggable} from "@dnd-kit/core";
 
 export const CARD_HEIGHT = 80
 export const CARD_WIDTH = 60
+
+export type CardColor = "red" | "blue" | "orange"
+export const CARD_COLORS: CardColor[] = ["red", "blue", "orange"]
 
 export type CardType = {
     id: string
     x: number
     value: number
     color: CardColor
-};
+}
 
 interface CardProps extends CardType {
     beltHeight: number
@@ -19,12 +21,8 @@ interface CardProps extends CardType {
     onRightClick?: (id: string) => void
 }
 
-export type CardColor = 'red' | 'blue' | 'orange'
-export const CARD_COLORS: CardColor[] = ['red', 'blue', 'orange']
-
-
-export const Card = ({id, x, value, color, beltHeight, fallDurationMs, onExpire, onRightClick}: CardProps) => {
-    const {attributes, listeners, setNodeRef, isDragging} = useDraggable({id})
+export const Card = ({id, x, value, color, beltHeight, fallDurationMs, onExpire, onRightClick,}: CardProps) => {
+    const {attributes, listeners, setNodeRef} = useDraggable({id, data: {origin: "belt" as const}})
 
     return (
         <motion.div
@@ -38,11 +36,11 @@ export const Card = ({id, x, value, color, beltHeight, fallDurationMs, onExpire,
                 duration: fallDurationMs / 1000,
                 ease: "linear",
             }}
+            onAnimationComplete={() => onExpire(id)}
             onContextMenu={(e) => {
                 e.preventDefault()
                 onRightClick?.(id)
             }}
-            onAnimationComplete={() => onExpire(id)}
             style={{
                 position: "absolute",
                 left: x,
@@ -59,7 +57,7 @@ export const Card = ({id, x, value, color, beltHeight, fallDurationMs, onExpire,
                 touchAction: "none",
             }}
         >
-            <span className="text-3xl ">{value}</span>
+            <span className="text-3xl">{value}</span>
         </motion.div>
     )
 }
