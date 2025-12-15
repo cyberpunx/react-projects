@@ -1,21 +1,18 @@
-import {useDraggable, useDroppable} from "@dnd-kit/core";
-import {CARD_HEIGHT, CARD_WIDTH, type CardType} from "./Card";
+import {useDraggable, useDroppable} from "@dnd-kit/core"
+import {CARD_HEIGHT, CARD_WIDTH, type CardType} from "./Card"
 
 interface WorkspaceProps {
-    cards: CardType[];
-    onRightClickCard: (cardId: string) => void;
+    cards: CardType[]
+    onRightClickCard: (cardId: string) => void
 }
 
 export const Workspace = ({cards, onRightClickCard}: WorkspaceProps) => {
-    const {isOver, setNodeRef} = useDroppable({id: "workspace"});
+    const {isOver, setNodeRef} = useDroppable({id: "workspace"})
 
     return (
-        <div
-            ref={setNodeRef}
-            className={[
-                "h-1/2 w-[420px] border-2 border-dashed rounded-xl p-4 overflow-auto",
-                isOver ? "border-green-500" : "border-gray-500",
-            ].join(" ")}
+        <div ref={setNodeRef}
+             className={["h-1/2 w-[420px] border-2 border-dashed rounded-xl p-4 overflow-auto",
+                 isOver ? "border-green-500" : "border-gray-500",].join(" ")}
         >
             <div className="mb-3 text-sm opacity-70">
                 WORKSPACE — cartas: {cards.length}
@@ -30,28 +27,23 @@ export const Workspace = ({cards, onRightClickCard}: WorkspaceProps) => {
                 }}
             >
                 {cards.map((c) => (
-                    <WorkspaceCard
-                        key={c.id}
-                        card={c}
-                        onRightClick={() => onRightClickCard(c.id)}
-                    />
+                    <WorkspaceCard key={c.id} card={c} onRightClick={() => onRightClickCard(c.id)}/>
                 ))}
             </div>
         </div>
-    );
-};
+    )
+}
 
-const WorkspaceCard = ({
-                           card,
-                           onRightClick,
-                       }: {
-    card: CardType;
-    onRightClick: () => void;
-}) => {
+interface WorkspaceCardProps {
+    card: CardType
+    onRightClick: () => void
+}
+
+const WorkspaceCard = ({card, onRightClick,}: WorkspaceCardProps) => {
     const {attributes, listeners, setNodeRef} = useDraggable({
         id: card.id,
         data: {origin: "workspace" as const},
-    });
+    })
 
     return (
         <div
@@ -59,8 +51,8 @@ const WorkspaceCard = ({
             {...listeners}
             {...attributes}
             onContextMenu={(e) => {
-                e.preventDefault();
-                onRightClick();
+                e.preventDefault()
+                onRightClick()
             }}
             style={{
                 width: CARD_WIDTH,
@@ -79,5 +71,5 @@ const WorkspaceCard = ({
         >
             <span className="text-3xl">{card.value}</span>
         </div>
-    );
-};
+    )
+}
