@@ -12,7 +12,7 @@ import {APP_CONTAINER_CLASS, LEFT_PANEL_CLASS} from "../theme/layout"
 import {createCard} from "../domain/cards"
 
 const FALL_DURATION_MS = 30000
-const SPAWN_BASE_MS = 7000
+const SPAWN_BASE_MS = 5000
 const VALUE_MAX = 2
 const VALUE_MIN = 1
 
@@ -55,7 +55,9 @@ export const CardsGame = () => {
             const nextInMs = Math.max(80, Math.round(SPAWN_BASE_MS + randomInt(-jitter, jitter)))
             timeoutId = window.setTimeout(spawnOnce, nextInMs)
         }
-        spawnOnce()
+
+        const initialDelay = 200
+        timeoutId = window.setTimeout(spawnOnce, initialDelay)
         return () => {
             cancelled = true
             if (timeoutId !== null) window.clearTimeout(timeoutId)
