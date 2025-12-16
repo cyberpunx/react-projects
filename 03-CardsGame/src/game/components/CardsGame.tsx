@@ -1,4 +1,4 @@
-import {DndContext, DragOverlay, type DragCancelEvent, type DragEndEvent, type DragStartEvent,} from "@dnd-kit/core"
+import {DndContext, DragOverlay, type DragEndEvent, type DragStartEvent,} from "@dnd-kit/core"
 import {snapCenterToCursor} from "@dnd-kit/modifiers"
 import {useEffect, useMemo, useReducer, useRef, useState} from "react"
 import {Workspace} from "./Workspace"
@@ -8,7 +8,6 @@ import {buildLanes, ConveyorBelt, LANE_COUNT, LANE_GAP,} from "./ConveyorBelt"
 import {CARD_WIDTH} from "./Card"
 import {COMBINATOR_SLOTS, initialState, reducer, type Origin,} from "../state/gameReducer"
 import {randomInt} from "../lib/utils.ts"
-import {randomColor} from "../lib/helpers.ts"
 import {APP_CONTAINER_CLASS, LEFT_PANEL_CLASS} from "../theme/layout"
 import {createCard} from "../domain/cards"
 
@@ -82,7 +81,7 @@ export const CardsGame = () => {
         dispatch({type: "DROP_CARD", payload: {overId}})
     }
 
-    const onDragCancel = (_event: DragCancelEvent) => {
+    const onDragCancel = () => {
         dispatch({type: "DESTROY_DRAG"})
     }
 
