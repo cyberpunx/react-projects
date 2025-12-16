@@ -1,5 +1,12 @@
 import {useDraggable, useDroppable} from "@dnd-kit/core"
-import {CARD_HEIGHT, CARD_WIDTH, type CardType} from "./Card"
+import {CARD_BASE_CLASS, CARD_HEIGHT, CARD_WIDTH, type CardType} from "./Card"
+import {CARD_PALETTE} from "../theme/cardPalette"
+import {
+    SECTION_TITLE_CLASS,
+    WORKSPACE_CONTAINER_BASE,
+    WORKSPACE_CONTAINER_IDLE,
+    WORKSPACE_CONTAINER_OVER,
+} from "../theme/containers"
 
 interface WorkspaceProps {
     cards: CardType[]
@@ -10,11 +17,14 @@ export const Workspace = ({cards, onRightClickCard}: WorkspaceProps) => {
     const {isOver, setNodeRef} = useDroppable({id: "workspace"})
 
     return (
-        <div ref={setNodeRef}
-             className={["h-1/2 w-[420px] border-2 border-dashed rounded-xl p-4 overflow-auto",
-                 isOver ? "border-green-500" : "border-gray-500",].join(" ")}
+        <div
+            ref={setNodeRef}
+            className={[
+                WORKSPACE_CONTAINER_BASE,
+                isOver ? WORKSPACE_CONTAINER_OVER : WORKSPACE_CONTAINER_IDLE,
+            ].join(" ")}
         >
-            <div className="mb-3 text-sm opacity-70">
+            <div className={SECTION_TITLE_CLASS}>
                 WORKSPACE — cartas: {cards.length}
             </div>
 
@@ -54,18 +64,11 @@ const WorkspaceCard = ({card, onRightClick,}: WorkspaceCardProps) => {
                 e.preventDefault()
                 onRightClick()
             }}
+            className={`${CARD_BASE_CLASS} cursor-grab`}
             style={{
                 width: CARD_WIDTH,
                 height: CARD_HEIGHT,
-                backgroundColor: card.color,
-                borderRadius: 8,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontWeight: "bold",
-                cursor: "grab",
-                userSelect: "none",
-                touchAction: "none",
+                backgroundColor: CARD_PALETTE[card.color],
             }}
             title="Drag o click derecho"
         >

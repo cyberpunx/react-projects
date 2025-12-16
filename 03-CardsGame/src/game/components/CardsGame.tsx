@@ -1,6 +1,6 @@
 import {DndContext, DragOverlay, type DragCancelEvent, type DragEndEvent, type DragStartEvent,} from "@dnd-kit/core"
 import {snapCenterToCursor} from "@dnd-kit/modifiers"
-import {useEffect, useMemo, useReducer, useRef} from "react"
+import {useEffect, useMemo, useReducer, useRef, useState} from "react"
 import {Workspace} from "./Workspace"
 import {Combinator} from "./Combinator"
 import {CardPreview} from "./CardPreview"
@@ -9,13 +9,26 @@ import {CARD_WIDTH, type CardType} from "./Card"
 import {COMBINATOR_SLOTS, initialState, reducer, type Origin,} from "../state/gameReducer"
 import {randomInt} from "../lib/utils.ts"
 import {randomColor} from "../lib/helpers.ts"
+import {APP_CONTAINER_CLASS, LEFT_PANEL_CLASS} from "../theme/layout"
 
-const WINDOW_HEIGHT = window.innerHeight
 const FALL_DURATION_MS = 15000
 const SPAWN_BASE_MS = 1400
 
+// SSR-safe y reactivo al resize
+function useViewportHeight() {
+    const [h, setH] = useState(() => (typeof window !== "undefined" ? window.innerHeight : 0))
+    useEffect(() => {
+        if (typeof window === "undefined") return
+        const onResize = () => setH(window.innerHeight)
+        window.addEventListener("resize", onResize)
+        return () => window.removeEventListener("resize", onResize)
+    }, [])
+    return h
+}
+
 export const CardsGame = () => {
     const [state, dispatch] = useReducer(reducer, initialState)
+    const viewportHeight = useViewportHeight()
     const lanes = useMemo(() => buildLanes(LANE_COUNT), [])
     const lastLaneRef = useRef<number | null>(null)
     const beltWidth = LANE_COUNT * (CARD_WIDTH + LANE_GAP)
@@ -79,9 +92,9 @@ export const CardsGame = () => {
             onDragCancel={onDragCancel}
             modifiers={[snapCenterToCursor]}
         >
-            <div className="flex w-screen h-screen">
+            <div className={APP_CONTAINER_CLASS}>
                 {/* IZQUIERDA */}
-                <div className="w-[420px] h-screen flex flex-col gap-4 p-2">
+                <div className={LEFT_PANEL_CLASS}>
                     <Combinator
                         slotCount={COMBINATOR_SLOTS}
                         slots={state.combinator}
@@ -100,7 +113,7 @@ export const CardsGame = () => {
                 <div className="ml-auto">
                     <ConveyorBelt
                         cards={state.belt}
-                        beltHeight={WINDOW_HEIGHT}
+                        beltHeight={viewportHeight}
                         beltWidth={beltWidth}
                         fallDurationMs={FALL_DURATION_MS}
                         onExpire={handleExpire}

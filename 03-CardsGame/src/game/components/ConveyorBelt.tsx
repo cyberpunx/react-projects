@@ -1,4 +1,5 @@
 import {CARD_WIDTH, Card, type CardType} from "./Card"
+import {BELT_CONTAINER_CLASS} from "../theme/containers"
 
 export const LANE_GAP = 20
 export const LANE_COUNT = 5
@@ -27,7 +28,7 @@ export const ConveyorBelt = ({
                                  onCardRightClick,
                              }: ConveyorBeltProps) => {
     return (
-        <div className="relative h-screen overflow-hidden border-2 border-purple-600" style={{width: beltWidth}}>
+        <div className={BELT_CONTAINER_CLASS} style={{width: beltWidth}}>
             {cards.map((card) => (
                 <Card
                     key={card.id}

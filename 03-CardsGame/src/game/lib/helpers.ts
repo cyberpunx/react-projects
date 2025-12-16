@@ -1,4 +1,4 @@
-import {CARD_COLORS, type CardColor} from "../components/Card.tsx";
+import {CARD_COLORS, type CardColor} from "../theme/cardPalette";
 import {randomInt} from "./utils.ts";
 
 export const randomColor = (): CardColor => {

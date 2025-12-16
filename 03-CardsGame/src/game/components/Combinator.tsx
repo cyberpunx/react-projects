@@ -1,5 +1,14 @@
 import {useDraggable, useDroppable} from "@dnd-kit/core"
-import {CARD_HEIGHT, CARD_WIDTH, type CardType} from "./Card"
+import {CARD_BASE_CLASS, CARD_HEIGHT, CARD_WIDTH, type CardType} from "./Card"
+import {CARD_PALETTE} from "../theme/cardPalette"
+import {
+    COMBINATOR_CONTAINER_BASE,
+    COMBINATOR_CONTAINER_IDLE,
+    COMBINATOR_CONTAINER_OVER,
+    SECTION_HINT_CLASS,
+    SECTION_TITLE_CLASS,
+} from "../theme/containers"
+import {SLOT_BASE_CLASS, SLOT_IDLE_CLASS, SLOT_OVER_CLASS} from "../theme/slots"
 
 interface CombinatorProps {
     slots: Array<CardType | null>
@@ -14,9 +23,13 @@ export const Combinator = ({slots, slotCount, heightClassName = "h-1/2", onRight
     return (
         <div
             ref={setNodeRef}
-            className={[heightClassName, "w-[420px] border-2 rounded-xl p-4", isOver ? "border-cyan-400" : "border-cyan-700",].join(" ")}
+            className={[
+                heightClassName,
+                COMBINATOR_CONTAINER_BASE,
+                isOver ? COMBINATOR_CONTAINER_OVER : COMBINATOR_CONTAINER_IDLE,
+            ].join(" ")}
         >
-            <div className="mb-3 text-sm opacity-70">COMBINATOR</div>
+            <div className={SECTION_TITLE_CLASS}>COMBINATOR</div>
 
             <div className="flex gap-3">
                 {Array.from({length: slotCount}, (_, idx) => (
@@ -29,7 +42,7 @@ export const Combinator = ({slots, slotCount, heightClassName = "h-1/2", onRight
                 ))}
             </div>
 
-            <div className="mt-3 text-xs opacity-60">
+            <div className={SECTION_HINT_CLASS}>
                 Drop aquí o en un slot. Si no hay espacio, se destruye.
             </div>
         </div>
@@ -55,8 +68,8 @@ const Slot = ({index, card, onRightClickSlot,}: SlotProps) => {
         <div
             ref={setNodeRef}
             className={[
-                "border border-dashed rounded-lg flex items-center justify-center",
-                isOver ? "border-cyan-300" : "border-cyan-800",
+                SLOT_BASE_CLASS,
+                isOver ? SLOT_OVER_CLASS : SLOT_IDLE_CLASS,
             ].join(" ")}
             style={{
                 width: CARD_WIDTH,
@@ -74,18 +87,11 @@ const Slot = ({index, card, onRightClickSlot,}: SlotProps) => {
                         e.preventDefault()
                         onRightClickSlot(card.id, index)
                     }}
+                    className={`${CARD_BASE_CLASS} cursor-grab`}
                     style={{
                         width: CARD_WIDTH,
                         height: CARD_HEIGHT,
-                        backgroundColor: card.color,
-                        borderRadius: 8,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontWeight: "bold",
-                        cursor: "grab",
-                        userSelect: "none",
-                        touchAction: "none",
+                        backgroundColor: CARD_PALETTE[card.color],
                     }}
                 >
                     <span className="text-3xl">{card.value}</span>

@@ -1,11 +1,11 @@
 import {useDraggable} from "@dnd-kit/core"
 import {motion} from "motion/react"
+import {CARD_PALETTE, type CardColor} from "../theme/cardPalette"
 
 export const CARD_HEIGHT = 80
 export const CARD_WIDTH = 60
 
-export type CardColor = "red" | "blue" | "orange"
-export const CARD_COLORS: CardColor[] = ["red", "blue", "orange"]
+export const CARD_BASE_CLASS = "rounded-lg flex items-center justify-center font-bold select-none touch-none"
 
 export type CardType = {
     id: string
@@ -26,6 +26,7 @@ export const Card = ({id, x, value, color, beltHeight, fallDurationMs, onExpire,
 
     return (
         <motion.div
+            className={`${CARD_BASE_CLASS} cursor-grab`}
             ref={setNodeRef}
             {...listeners}
             {...attributes}
@@ -46,15 +47,7 @@ export const Card = ({id, x, value, color, beltHeight, fallDurationMs, onExpire,
                 left: x,
                 width: CARD_WIDTH,
                 height: CARD_HEIGHT,
-                backgroundColor: color,
-                borderRadius: 8,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontWeight: "bold",
-                cursor: "grab",
-                userSelect: "none",
-                touchAction: "none",
+                backgroundColor: CARD_PALETTE[color],
             }}
         >
             <span className="text-3xl">{value}</span>
