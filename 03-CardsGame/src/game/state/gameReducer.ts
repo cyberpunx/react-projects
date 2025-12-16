@@ -78,7 +78,6 @@ const removeFromOrigin = (
         return {...state, result: null}
     }
 
-    // combinator
     if (slotIndex === undefined) return state
     const next = [...state.combinator]
     if (next[slotIndex]?.id === id) next[slotIndex] = null
@@ -146,7 +145,6 @@ export function reducer(state: GameState, action: Action): GameState {
                 }
             }
 
-            // ✅ Slot específico: si no cabe -> destruir
             if (overId) {
                 const idx = parseSlotIndex(overId)
                 if (idx !== null) {
@@ -159,7 +157,6 @@ export function reducer(state: GameState, action: Action): GameState {
                 }
             }
 
-            // ✅ Combinator general: primer slot libre si no cabe -> destruir
             if (overId === "combinator") {
                 const placed = placeInCombinator(state.combinator, card)
                 return {
@@ -201,38 +198,31 @@ export function reducer(state: GameState, action: Action): GameState {
         }
 
         case "COMBINE_CARDS": {
-            // Leer los slots del combinator
-            const a = state.combinator[0]
-            const b = state.combinator[1]
-            const c = state.combinator[2]
+            const cards = state.combinator
+            if (cards.some((c) => c === null)) return state
 
-            // Si alguno está null -> no hace nada
-            if (!a || !b || !c) return state
-
-            // Todos llenos: verificar regla
-            const sameColor = a.color === b.color && b.color === c.color
-            const sameValue = a.value === b.value && b.value === c.value
-
+            const filled = cards as CardType[]
+            const first = filled[0]
+            const sameColor = filled.every((c) => c.color === first.color)
+            const sameValue = filled.every((c) => c.value === first.value)
             if (!sameColor || !sameValue) return state
 
-            // Límite de valor (resultante <= VALUE_LIMIT)
-            if (a.value >= VALUE_LIMIT) return state
+            if (first.value >= VALUE_LIMIT) return state
 
-            // Resultado debe estar vacío
             if (state.result !== null) return state
 
-            // Crear nueva carta con mismo color y value + 1
             const resultCard: CardType = {
                 id: crypto.randomUUID(),
                 x: 0,
-                value: a.value + 1,
-                color: a.color,
+                value: first.value + 1,
+                color: first.color,
             }
 
-            // Vaciar entradas y colocar resultado
+            const emptied = state.combinator.map(() => null)
+
             return {
                 ...state,
-                combinator: [null, null, null],
+                combinator: emptied,
                 result: resultCard,
             }
         }

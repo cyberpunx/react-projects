@@ -128,7 +128,6 @@ interface ResultSlotProps {
 }
 
 const ResultSlot = ({card}: ResultSlotProps) => {
-    // No es droppable: solo muestra resultado, pero su carta es draggeable
     const draggable = useDraggable({
         id: card?.id ?? `empty-result`,
         data: card ? {origin: "result" as const} : undefined,
