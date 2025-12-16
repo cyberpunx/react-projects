@@ -1,5 +1,7 @@
 import type {CardType} from "../components/Card"
 import {getSellPrice} from "../domain/economy"
+import type {Upgrades} from "../domain/upgrades"
+import {getUpgradeCost} from "../domain/upgrades"
 
 export const COMBINATOR_SLOTS = 3
 export const VALUE_LIMIT = 7
@@ -20,6 +22,7 @@ export type GameState = {
     sellSlot: CardType | null
     money: number
     victory: boolean
+    upgrades: Upgrades
 }
 
 export type Action =
@@ -32,6 +35,7 @@ export type Action =
     | { type: "RIGHT_TO_WORKSPACE", payload: { slotIndex: number } }
     | { type: "COMBINE_CARDS" }
     | { type: "SELL_CONFIRM" }
+    | { type: "UPGRADE_BUY", payload: { kind: "beltSpeed" | "rarity" | "amount" | "autoSeller" } }
 
 
 export const initialState: GameState = {
@@ -43,6 +47,12 @@ export const initialState: GameState = {
     sellSlot: null,
     money: 0,
     victory: false,
+    upgrades: {
+        beltSpeed: 0,
+        rarity: 0,
+        amount: 0,
+        autoSeller: false,
+    },
 }
 
 const firstFreeSlot = (slots: Array<CardType | null>) =>
@@ -130,7 +140,22 @@ export function reducer(state: GameState, action: Action): GameState {
 
         case "EXPIRE_CARD": {
             const {id} = action.payload
-            return {...state, belt: state.belt.filter((c) => c.id !== id)}
+            const expired = state.belt.find((c) => c.id === id)
+            const nextBelt = state.belt.filter((c) => c.id !== id)
+            if (!expired) return {...state, belt: nextBelt}
+
+            // AutoSeller: vende automáticamente al expirar
+            if (state.upgrades.autoSeller) {
+                const income = getSellPrice(expired.value)
+                const nextMoney = state.money + income
+                return {
+                    ...state,
+                    belt: nextBelt,
+                    money: nextMoney,
+                    victory: state.victory || nextMoney >= WIN_GOAL,
+                }
+            }
+            return {...state, belt: nextBelt}
         }
 
         case "PICKUP_CARD": {
@@ -265,6 +290,37 @@ export function reducer(state: GameState, action: Action): GameState {
                 money: nextMoney,
                 sellSlot: null,
                 victory: state.victory || nextMoney >= WIN_GOAL,
+            }
+        }
+
+        case "UPGRADE_BUY": {
+            const {kind} = action.payload
+            // Determinar nivel/estado actual y costo
+            const current = kind === "autoSeller" ? Number(state.upgrades.autoSeller) : (state.upgrades as any)[kind]
+            const cost = getUpgradeCost(kind as any, kind === "autoSeller" ? state.upgrades.autoSeller : current)
+            if (cost === null) return state // maxeado
+            if (state.money < cost) return state // no alcanza
+
+            const nextMoney = state.money - cost
+            let nextUpgrades: Upgrades = {...state.upgrades}
+            if (kind === "autoSeller") {
+                if (state.upgrades.autoSeller) return state
+                nextUpgrades = {...nextUpgrades, autoSeller: true}
+            } else if (kind === "beltSpeed") {
+                if (state.upgrades.beltSpeed >= 3) return state
+                nextUpgrades = {...nextUpgrades, beltSpeed: (state.upgrades.beltSpeed + 1) as Upgrades["beltSpeed"]}
+            } else if (kind === "rarity") {
+                if (state.upgrades.rarity >= 3) return state
+                nextUpgrades = {...nextUpgrades, rarity: (state.upgrades.rarity + 1) as Upgrades["rarity"]}
+            } else if (kind === "amount") {
+                if (state.upgrades.amount >= 2) return state
+                nextUpgrades = {...nextUpgrades, amount: (state.upgrades.amount + 1) as Upgrades["amount"]}
+            }
+
+            return {
+                ...state,
+                money: nextMoney,
+                upgrades: nextUpgrades,
             }
         }
 

@@ -4,6 +4,7 @@ import {useEffect, useMemo, useReducer, useRef, useState} from "react"
 import {Workspace} from "./Workspace"
 import {Combinator} from "./Combinator"
 import {SellPanel} from "./SellPanel"
+import {UpgradesPanel} from "./UpgradesPanel"
 import {CardPreview} from "./CardPreview"
 import {buildLanes, ConveyorBelt, LANE_COUNT, LANE_GAP,} from "./ConveyorBelt"
 import {CARD_WIDTH} from "./Card"
@@ -12,11 +13,8 @@ import {PRICE_TABLE} from "../domain/economy"
 import {randomInt} from "../lib/utils.ts"
 import {APP_CONTAINER_CLASS, LEFT_PANEL_CLASS} from "../theme/layout"
 import {createCard} from "../domain/cards"
+import {getDerivedRules} from "../domain/upgrades"
 
-const FALL_DURATION_MS = 30000
-const SPAWN_BASE_MS = 5000
-const VALUE_MAX = 2
-const VALUE_MIN = 1
 
 function useViewportHeight() {
     const [h, setH] = useState(() => (typeof window !== "undefined" ? window.innerHeight : 0))
@@ -31,6 +29,7 @@ function useViewportHeight() {
 
 export const CardsGame = () => {
     const [state, dispatch] = useReducer(reducer, initialState)
+    const rules = useMemo(() => getDerivedRules(state.upgrades), [state.upgrades])
     const viewportHeight = useViewportHeight()
     const lanes = useMemo(() => buildLanes(LANE_COUNT), [])
     const lastLaneRef = useRef<number | null>(null)
@@ -49,12 +48,12 @@ export const CardsGame = () => {
             const possible = lanes.filter((x) => x !== lastLane)
             const x = possible[randomInt(0, possible.length - 1)]
             lastLaneRef.current = x
-            const valueMin = VALUE_MIN
-            const valueMax = VALUE_MAX
+            const valueMin = rules.minValue
+            const valueMax = rules.maxValue
             const card = createCard({x, valueMin, valueMax})
             dispatch({type: "SPAWN_CARD", payload: card})
-            const jitter = SPAWN_BASE_MS * 0.6
-            const nextInMs = Math.max(80, Math.round(SPAWN_BASE_MS + randomInt(-jitter, jitter)))
+            const jitter = rules.spawnBaseMs * 0.6
+            const nextInMs = Math.max(80, Math.round(rules.spawnBaseMs + randomInt(-jitter, jitter)))
             timeoutId = window.setTimeout(spawnOnce, nextInMs)
         }
 
@@ -64,7 +63,7 @@ export const CardsGame = () => {
             cancelled = true
             if (timeoutId !== null) window.clearTimeout(timeoutId)
         }
-    }, [lanes])
+    }, [lanes, rules.spawnBaseMs, rules.minValue, rules.maxValue])
 
     const onDragStart = (event: DragStartEvent) => {
         const id = String(event.active.id)
@@ -159,6 +158,15 @@ export const CardsGame = () => {
                             </tbody>
                         </table>
                     </div>
+
+                    {/* Panel de Upgrades */}
+                    <div className="mt-2 w-full max-w-sm p-5">
+                        <UpgradesPanel
+                            upgrades={state.upgrades}
+                            money={state.money}
+                            onBuy={(kind) => dispatch({type: "UPGRADE_BUY", payload: {kind}})}
+                        />
+                    </div>
                 </div>
 
                 {/* DERECHA */}
@@ -167,7 +175,7 @@ export const CardsGame = () => {
                         cards={state.belt}
                         beltHeight={viewportHeight}
                         beltWidth={beltWidth}
-                        fallDurationMs={FALL_DURATION_MS}
+                        fallDurationMs={rules.fallDurationMs}
                         onExpire={handleExpire}
                         onCardRightClick={(cardId) => onRightClick("belt", cardId)}
                     />
