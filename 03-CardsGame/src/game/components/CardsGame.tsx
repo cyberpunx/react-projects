@@ -5,14 +5,17 @@ import {Workspace} from "./Workspace"
 import {Combinator} from "./Combinator"
 import {CardPreview} from "./CardPreview"
 import {buildLanes, ConveyorBelt, LANE_COUNT, LANE_GAP,} from "./ConveyorBelt"
-import {CARD_WIDTH, type CardType} from "./Card"
+import {CARD_WIDTH} from "./Card"
 import {COMBINATOR_SLOTS, initialState, reducer, type Origin,} from "../state/gameReducer"
 import {randomInt} from "../lib/utils.ts"
 import {randomColor} from "../lib/helpers.ts"
 import {APP_CONTAINER_CLASS, LEFT_PANEL_CLASS} from "../theme/layout"
+import {createCard} from "../domain/cards"
 
 const FALL_DURATION_MS = 15000
 const SPAWN_BASE_MS = 1400
+const VALUE_MAX = 2
+const VALUE_MIN = 1
 
 // SSR-safe y reactivo al resize
 function useViewportHeight() {
@@ -46,7 +49,9 @@ export const CardsGame = () => {
             const possible = lanes.filter((x) => x !== lastLane)
             const x = possible[randomInt(0, possible.length - 1)]
             lastLaneRef.current = x
-            const card: CardType = {id: crypto.randomUUID(), x, value: randomInt(0, 9), color: randomColor(),}
+            const valueMin = VALUE_MIN
+            const valueMax = VALUE_MAX
+            const card = createCard({x, valueMin, valueMax})
             dispatch({type: "SPAWN_CARD", payload: card})
             const jitter = SPAWN_BASE_MS * 0.6
             const nextInMs = Math.max(80, Math.round(SPAWN_BASE_MS + randomInt(-jitter, jitter)))
@@ -85,6 +90,13 @@ export const CardsGame = () => {
         dispatch({type: "RIGHT_TO_COMBINATOR", payload: {id, origin, slotIndex}})
     }
 
+    const onCombinatorSlotRightClick = (slotIndex: number) => {
+        dispatch({
+            type: "RIGHT_TO_WORKSPACE",
+            payload: {slotIndex},
+        });
+    };
+
     return (
         <DndContext
             onDragStart={onDragStart}
@@ -98,9 +110,7 @@ export const CardsGame = () => {
                     <Combinator
                         slotCount={COMBINATOR_SLOTS}
                         slots={state.combinator}
-                        onRightClickSlot={(cardId, slotIndex) =>
-                            onRightClick("combinator", cardId, slotIndex)
-                        }
+                        onSlotRightClick={onCombinatorSlotRightClick}
                     />
 
                     <Workspace

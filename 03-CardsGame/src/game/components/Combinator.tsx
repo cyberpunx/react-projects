@@ -14,10 +14,10 @@ interface CombinatorProps {
     slots: Array<CardType | null>
     slotCount: number
     heightClassName?: string
-    onRightClickSlot: (cardId: string, slotIndex: number) => void
+    onSlotRightClick: (slotIndex: number) => void
 }
 
-export const Combinator = ({slots, slotCount, heightClassName = "h-1/2", onRightClickSlot,}: CombinatorProps) => {
+export const Combinator = ({slots, slotCount, heightClassName = "h-1/2", onSlotRightClick}: CombinatorProps) => {
     const {isOver, setNodeRef} = useDroppable({id: "combinator"})
 
     return (
@@ -37,7 +37,7 @@ export const Combinator = ({slots, slotCount, heightClassName = "h-1/2", onRight
                         key={idx}
                         index={idx}
                         card={slots[idx] ?? null}
-                        onRightClickSlot={onRightClickSlot}
+                        onSlotRightClick={onSlotRightClick}
                     />
                 ))}
             </div>
@@ -52,10 +52,10 @@ export const Combinator = ({slots, slotCount, heightClassName = "h-1/2", onRight
 interface SlotProps {
     index: number
     card: CardType | null
-    onRightClickSlot: (cardId: string, slotIndex: number) => void
+    onSlotRightClick: (slotIndex: number) => void
 }
 
-const Slot = ({index, card, onRightClickSlot,}: SlotProps) => {
+const Slot = ({index, card, onSlotRightClick}: SlotProps) => {
     const {isOver, setNodeRef} = useDroppable({id: `slot-${index}`})
 
     const draggable = useDraggable({
@@ -84,8 +84,8 @@ const Slot = ({index, card, onRightClickSlot,}: SlotProps) => {
                     {...draggable.listeners}
                     {...draggable.attributes}
                     onContextMenu={(e) => {
-                        e.preventDefault()
-                        onRightClickSlot(card.id, index)
+                        e.preventDefault();
+                        onSlotRightClick(index);
                     }}
                     className={`${CARD_BASE_CLASS} cursor-grab`}
                     style={{

@@ -129,7 +129,6 @@ export function reducer(state: GameState, action: Action): GameState {
             const {card} = state.drag
             const overId = action.payload.overId
 
-            // ✅ Workspace: siempre acumula
             if (overId === "workspace") {
                 return {
                     ...state,
@@ -175,6 +174,23 @@ export function reducer(state: GameState, action: Action): GameState {
             const removed = removeFromOrigin(state, id, origin, slotIndex)
             return {...removed, combinator: placed}
         }
+
+        case "RIGHT_TO_WORKSPACE": {
+            const {slotIndex} = action.payload;
+            const card = state.combinator[slotIndex];
+
+            if (!card) return state;
+
+            const nextCombinator = [...state.combinator];
+            nextCombinator[slotIndex] = null;
+
+            return {
+                ...state,
+                combinator: nextCombinator,
+                workspace: [...state.workspace, card],
+            };
+        }
+
 
         case "DESTROY_DRAG": {
             return {...state, drag: null}
