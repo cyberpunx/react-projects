@@ -7,7 +7,7 @@ import {SellPanel} from "./SellPanel"
 import {CardPreview} from "./CardPreview"
 import {buildLanes, ConveyorBelt, LANE_COUNT, LANE_GAP,} from "./ConveyorBelt"
 import {CARD_WIDTH} from "./Card"
-import {COMBINATOR_SLOTS, initialState, reducer, type Origin,} from "../state/gameReducer"
+import {COMBINATOR_SLOTS, WIN_GOAL, initialState, reducer, type Origin,} from "../state/gameReducer"
 import {PRICE_TABLE} from "../domain/economy"
 import {randomInt} from "../lib/utils.ts"
 import {APP_CONTAINER_CLASS, LEFT_PANEL_CLASS} from "../theme/layout"
@@ -130,6 +130,11 @@ export const CardsGame = () => {
 
                 {/* COLUMNA CENTRAL */}
                 <div className="flex-1 flex flex-col items-center p-2">
+                    {state.victory ? (
+                        <div className="mb-2 px-4 py-2 rounded-lg bg-emerald-700 text-white font-semibold">
+                            ¡Victoria! Objetivo alcanzado ({WIN_GOAL}$)
+                        </div>
+                    ) : null}
                     <div className="text-2xl font-bold">{state.money}$</div>
 
                     {/* Tabla de precios */}

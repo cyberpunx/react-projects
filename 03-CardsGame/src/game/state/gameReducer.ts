@@ -3,6 +3,7 @@ import {getSellPrice} from "../domain/economy"
 
 export const COMBINATOR_SLOTS = 3
 export const VALUE_LIMIT = 7
+export const WIN_GOAL = 50000
 
 export type Origin = "belt" | "workspace" | "combinator" | "result" | "sellSlot"
 
@@ -18,6 +19,7 @@ export type GameState = {
     drag: DragState
     sellSlot: CardType | null
     money: number
+    victory: boolean
 }
 
 export type Action =
@@ -40,6 +42,7 @@ export const initialState: GameState = {
     drag: null,
     sellSlot: null,
     money: 0,
+    victory: false,
 }
 
 const firstFreeSlot = (slots: Array<CardType | null>) =>
@@ -256,10 +259,12 @@ export function reducer(state: GameState, action: Action): GameState {
             const card = state.sellSlot
             if (!card) return state
             const income = getSellPrice(card.value)
+            const nextMoney = state.money + income
             return {
                 ...state,
-                money: state.money + income,
+                money: nextMoney,
                 sellSlot: null,
+                victory: state.victory || nextMoney >= WIN_GOAL,
             }
         }
 
