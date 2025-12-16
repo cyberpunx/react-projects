@@ -11,8 +11,8 @@ import {randomInt} from "../lib/utils.ts"
 import {APP_CONTAINER_CLASS, LEFT_PANEL_CLASS} from "../theme/layout"
 import {createCard} from "../domain/cards"
 
-const FALL_DURATION_MS = 15000
-const SPAWN_BASE_MS = 1400
+const FALL_DURATION_MS = 30000
+const SPAWN_BASE_MS = 7000
 const VALUE_MAX = 2
 const VALUE_MIN = 1
 
