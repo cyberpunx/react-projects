@@ -108,7 +108,9 @@ export const CardsGame = () => {
                     <Combinator
                         slotCount={COMBINATOR_SLOTS}
                         slots={state.combinator}
+                        result={state.result}
                         onSlotRightClick={onCombinatorSlotRightClick}
+                        onCombine={() => dispatch({type: "COMBINE_CARDS"})}
                     />
 
                     <Workspace

@@ -1,8 +1,9 @@
 import type {CardType} from "../components/Card"
 
 export const COMBINATOR_SLOTS = 3
+export const VALUE_LIMIT = 10
 
-export type Origin = "belt" | "workspace" | "combinator"
+export type Origin = "belt" | "workspace" | "combinator" | "result"
 
 export type DragState =
     | { card: CardType, origin: Origin, slotIndex?: number }
@@ -12,6 +13,7 @@ export type GameState = {
     belt: CardType[]
     workspace: CardType[]
     combinator: Array<CardType | null>
+    result: CardType | null
     drag: DragState
 }
 
@@ -23,12 +25,14 @@ export type Action =
     | { type: "RIGHT_TO_COMBINATOR", payload: { id: string, origin: Origin, slotIndex?: number } }
     | { type: "DESTROY_DRAG" }
     | { type: "RIGHT_TO_WORKSPACE", payload: { slotIndex: number } }
+    | { type: "COMBINE_CARDS" }
 
 
 export const initialState: GameState = {
     belt: [],
     workspace: [],
     combinator: Array.from({length: COMBINATOR_SLOTS}, () => null),
+    result: null,
     drag: null,
 }
 
@@ -69,6 +73,10 @@ const removeFromOrigin = (
     if (origin === "workspace") {
         return {...state, workspace: state.workspace.filter((c) => c.id !== id)}
     }
+    if (origin === "result") {
+        if (state.result?.id !== id) return state
+        return {...state, result: null}
+    }
 
     // combinator
     if (slotIndex === undefined) return state
@@ -86,6 +94,7 @@ const findInOrigin = (
     if (origin === "belt") return state.belt.find((c) => c.id === id) ?? null
     if (origin === "workspace")
         return state.workspace.find((c) => c.id === id) ?? null
+    if (origin === "result") return state.result && state.result.id === id ? state.result : null
 
     // combinator
     if (slotIndex === undefined) return null
@@ -189,6 +198,43 @@ export function reducer(state: GameState, action: Action): GameState {
                 combinator: nextCombinator,
                 workspace: [...state.workspace, card],
             };
+        }
+
+        case "COMBINE_CARDS": {
+            // Leer los slots del combinator
+            const a = state.combinator[0]
+            const b = state.combinator[1]
+            const c = state.combinator[2]
+
+            // Si alguno está null -> no hace nada
+            if (!a || !b || !c) return state
+
+            // Todos llenos: verificar regla
+            const sameColor = a.color === b.color && b.color === c.color
+            const sameValue = a.value === b.value && b.value === c.value
+
+            if (!sameColor || !sameValue) return state
+
+            // Límite de valor (resultante <= VALUE_LIMIT)
+            if (a.value >= VALUE_LIMIT) return state
+
+            // Resultado debe estar vacío
+            if (state.result !== null) return state
+
+            // Crear nueva carta con mismo color y value + 1
+            const resultCard: CardType = {
+                id: crypto.randomUUID(),
+                x: 0,
+                value: a.value + 1,
+                color: a.color,
+            }
+
+            // Vaciar entradas y colocar resultado
+            return {
+                ...state,
+                combinator: [null, null, null],
+                result: resultCard,
+            }
         }
 
 

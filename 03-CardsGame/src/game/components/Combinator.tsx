@@ -13,11 +13,20 @@ import {SLOT_BASE_CLASS, SLOT_IDLE_CLASS, SLOT_OVER_CLASS} from "../theme/slots"
 interface CombinatorProps {
     slots: Array<CardType | null>
     slotCount: number
+    result: CardType | null
     heightClassName?: string
     onSlotRightClick: (slotIndex: number) => void
+    onCombine: () => void
 }
 
-export const Combinator = ({slots, slotCount, heightClassName = "h-1/2", onSlotRightClick}: CombinatorProps) => {
+export const Combinator = ({
+                               slots,
+                               slotCount,
+                               result,
+                               heightClassName = "h-1/2",
+                               onSlotRightClick,
+                               onCombine
+                           }: CombinatorProps) => {
     const {isOver, setNodeRef} = useDroppable({id: "combinator"})
 
     return (
@@ -40,6 +49,17 @@ export const Combinator = ({slots, slotCount, heightClassName = "h-1/2", onSlotR
                         onSlotRightClick={onSlotRightClick}
                     />
                 ))}
+            </div>
+
+            <div className="mt-3 flex items-center gap-3">
+                <button
+                    className="px-3 py-1 rounded bg-slate-700 text-white hover:bg-slate-600 active:bg-slate-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={onCombine}
+                >
+                    Combinar
+                </button>
+
+                <ResultSlot card={result}/>
             </div>
 
             <div className={SECTION_HINT_CLASS}>
@@ -98,6 +118,45 @@ const Slot = ({index, card, onSlotRightClick}: SlotProps) => {
                 </div>
             ) : (
                 <span className="text-xs opacity-70">slot {index + 1}</span>
+            )}
+        </div>
+    )
+}
+
+interface ResultSlotProps {
+    card: CardType | null
+}
+
+const ResultSlot = ({card}: ResultSlotProps) => {
+    // No es droppable: solo muestra resultado, pero su carta es draggeable
+    const draggable = useDraggable({
+        id: card?.id ?? `empty-result`,
+        data: card ? {origin: "result" as const} : undefined,
+        disabled: !card,
+    })
+
+    return (
+        <div
+            className={[SLOT_BASE_CLASS, SLOT_IDLE_CLASS].join(" ")}
+            style={{width: CARD_WIDTH, height: CARD_HEIGHT, opacity: card ? 1 : 0.6}}
+            title={card ? "Drag para usar el resultado" : "Resultado vacío"}
+        >
+            {card ? (
+                <div
+                    ref={draggable.setNodeRef}
+                    {...draggable.listeners}
+                    {...draggable.attributes}
+                    className={`${CARD_BASE_CLASS} cursor-grab`}
+                    style={{
+                        width: CARD_WIDTH,
+                        height: CARD_HEIGHT,
+                        backgroundColor: CARD_PALETTE[card.color],
+                    }}
+                >
+                    <span className="text-3xl">{card.value}</span>
+                </div>
+            ) : (
+                <span className="text-xs opacity-70">resultado</span>
             )}
         </div>
     )
