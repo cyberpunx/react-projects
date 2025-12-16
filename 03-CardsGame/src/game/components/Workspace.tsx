@@ -7,6 +7,7 @@ import {
     WORKSPACE_CONTAINER_IDLE,
     WORKSPACE_CONTAINER_OVER,
 } from "../theme/containers"
+import {WORKSPACE_SLOTS} from "../state/gameReducer"
 
 interface WorkspaceProps {
     cards: CardType[]
@@ -25,7 +26,7 @@ export const Workspace = ({cards, onRightClickCard}: WorkspaceProps) => {
             ].join(" ")}
         >
             <div className={SECTION_TITLE_CLASS}>
-                WORKSPACE — cartas: {cards.length}
+                WORKSPACE — cartas: {cards.length}/{WORKSPACE_SLOTS}
             </div>
 
             <div

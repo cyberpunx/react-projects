@@ -29,7 +29,7 @@ export const SellPanel = ({card, onSell}: SellPanelProps) => {
         <div className={[COMBINATOR_CONTAINER_BASE, COMBINATOR_CONTAINER_IDLE].join(" ")}>
             <div className={SECTION_TITLE_CLASS}>VENDER</div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col justify-center items-center gap-3">
                 <div
                     ref={setNodeRef}
                     className={[SLOT_BASE_CLASS, isOver ? SLOT_OVER_CLASS : SLOT_IDLE_CLASS].join(" ")}
@@ -51,17 +51,20 @@ export const SellPanel = ({card, onSell}: SellPanelProps) => {
                             <span className="text-3xl">{card.value}</span>
                         </div>
                     ) : (
-                        <span className="text-xs opacity-70">sell</span>
+                        <span className="text-3xl opacity-70">$</span>
                     )}
                 </div>
 
-                <button
-                    className="px-3 py-1 rounded bg-amber-600 text-white hover:bg-amber-500 active:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                    onClick={onSell}
-                    disabled={!card}
-                >
-                    Vender
-                </button>
+                <div className="flex-col">
+                    <button
+                        className="px-3 py-1 rounded bg-amber-600 text-white hover:bg-amber-500 active:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        onClick={onSell}
+                        disabled={!card}
+                    >
+                        Vender
+                    </button>
+                </div>
+
             </div>
 
             <div className={SECTION_HINT_CLASS}>

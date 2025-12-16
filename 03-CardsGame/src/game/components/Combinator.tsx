@@ -39,8 +39,21 @@ export const Combinator = ({
             ].join(" ")}
         >
             <div className={SECTION_TITLE_CLASS}>COMBINATOR</div>
+            
+            <div className="mt-3 flex flex-col justify-center items-center gap-3">
+                <ResultSlot card={result}/>
+            </div>
 
-            <div className="flex gap-3">
+            <div className="flex flex-col justify-end items-center mt-5">
+                <button
+                    className="px-3 py-1 rounded bg-slate-700 text-white hover:bg-slate-600 active:bg-slate-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={onCombine}
+                >
+                    Combinar
+                </button>
+            </div>
+
+            <div className="flex gap-3 justify-center items-center mt-10">
                 {Array.from({length: slotCount}, (_, idx) => (
                     <Slot
                         key={idx}
@@ -51,16 +64,6 @@ export const Combinator = ({
                 ))}
             </div>
 
-            <div className="mt-3 flex items-center gap-3">
-                <button
-                    className="px-3 py-1 rounded bg-slate-700 text-white hover:bg-slate-600 active:bg-slate-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                    onClick={onCombine}
-                >
-                    Combinar
-                </button>
-
-                <ResultSlot card={result}/>
-            </div>
 
             <div className={SECTION_HINT_CLASS}>
                 Drop aquí o en un slot. Si no hay espacio, se destruye.

@@ -4,6 +4,7 @@ import type {Upgrades} from "../domain/upgrades"
 import {getUpgradeCost} from "../domain/upgrades"
 
 export const COMBINATOR_SLOTS = 3
+export const WORKSPACE_SLOTS = 10
 export const VALUE_LIMIT = 7
 export const WIN_GOAL = 50000
 
@@ -177,6 +178,13 @@ export function reducer(state: GameState, action: Action): GameState {
             const overId = action.payload.overId
 
             if (overId === "workspace") {
+                if (state.workspace.length >= WORKSPACE_SLOTS) {
+                    // Sin espacio: destruir la carta arrastrada
+                    return {
+                        ...state,
+                        drag: null,
+                    }
+                }
                 return {
                     ...state,
                     workspace: [...state.workspace, card],
@@ -242,6 +250,14 @@ export function reducer(state: GameState, action: Action): GameState {
 
             const nextCombinator = [...state.combinator];
             nextCombinator[slotIndex] = null;
+
+            if (state.workspace.length >= WORKSPACE_SLOTS) {
+                // Sin espacio: se destruye la carta retirada del combinador
+                return {
+                    ...state,
+                    combinator: nextCombinator,
+                };
+            }
 
             return {
                 ...state,
