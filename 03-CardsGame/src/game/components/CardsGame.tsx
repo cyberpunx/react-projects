@@ -16,7 +16,6 @@ const SPAWN_BASE_MS = 1400
 const VALUE_MAX = 2
 const VALUE_MIN = 1
 
-// SSR-safe y reactivo al resize
 function useViewportHeight() {
     const [h, setH] = useState(() => (typeof window !== "undefined" ? window.innerHeight : 0))
     useEffect(() => {
