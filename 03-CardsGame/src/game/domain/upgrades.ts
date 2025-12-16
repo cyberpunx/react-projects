@@ -30,8 +30,9 @@ export function isMax(kind: UpgradeKind, currentLevelOrEnabled: number | boolean
     return level >= arr.length
 }
 
-const FALL_DURATION_MS_LEVELS = [30000, 22000, 15000, 10000] as const
-const SPAWN_BASE_MS_LEVELS = [5000, 3200, 1800] as const
+
+const FALL_DURATION_MS_LEVELS = [15000, 10000, 7000, 5000] as const
+const SPAWN_BASE_MS_LEVELS = [2000, 1200, 700] as const
 const RARITY_VALUE_RANGES: ReadonlyArray<readonly [number, number]> = [
     [1, 2], // lvl 0
     [1, 3], // lvl 1
