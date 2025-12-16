@@ -30,6 +30,13 @@ export const UpgradesPanel = ({upgrades, money, onBuy}: Props) => {
             maxed: isMax("amount", upgrades.amount),
         },
         {
+            kind: "workspace",
+            label: UPGRADE_LABELS.workspace,
+            levelText: `Nivel ${upgrades.workspace}/2`,
+            cost: getUpgradeCost("workspace", upgrades.workspace),
+            maxed: isMax("workspace", upgrades.workspace),
+        },
+        {
             kind: "autoSeller",
             label: UPGRADE_LABELS.autoSeller,
             levelText: upgrades.autoSeller ? "Activado" : "Desactivado",

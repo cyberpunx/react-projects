@@ -1,7 +1,7 @@
 import type {CardType} from "../components/Card"
 import {getSellPrice} from "../domain/economy"
 import type {Upgrades} from "../domain/upgrades"
-import {getUpgradeCost} from "../domain/upgrades"
+import {getDerivedRules, getUpgradeCost} from "../domain/upgrades"
 
 export const COMBINATOR_SLOTS = 3
 export const WORKSPACE_SLOTS = 10
@@ -36,7 +36,7 @@ export type Action =
     | { type: "RIGHT_TO_WORKSPACE", payload: { slotIndex: number } }
     | { type: "COMBINE_CARDS" }
     | { type: "SELL_CONFIRM" }
-    | { type: "UPGRADE_BUY", payload: { kind: "beltSpeed" | "rarity" | "amount" | "autoSeller" } }
+    | { type: "UPGRADE_BUY", payload: { kind: "beltSpeed" | "rarity" | "amount" | "workspace" | "autoSeller" } }
 
 
 export const initialState: GameState = {
@@ -52,6 +52,7 @@ export const initialState: GameState = {
         beltSpeed: 0,
         rarity: 0,
         amount: 0,
+        workspace: 0,
         autoSeller: false,
     },
 }
@@ -178,7 +179,8 @@ export function reducer(state: GameState, action: Action): GameState {
             const overId = action.payload.overId
 
             if (overId === "workspace") {
-                if (state.workspace.length >= WORKSPACE_SLOTS) {
+                const capacity = getDerivedRules(state.upgrades).workspaceSlots
+                if (state.workspace.length >= capacity) {
                     // Sin espacio: destruir la carta arrastrada
                     return {
                         ...state,
@@ -251,7 +253,8 @@ export function reducer(state: GameState, action: Action): GameState {
             const nextCombinator = [...state.combinator];
             nextCombinator[slotIndex] = null;
 
-            if (state.workspace.length >= WORKSPACE_SLOTS) {
+            const capacity = getDerivedRules(state.upgrades).workspaceSlots
+            if (state.workspace.length >= capacity) {
                 // Sin espacio: se destruye la carta retirada del combinador
                 return {
                     ...state,
@@ -331,6 +334,9 @@ export function reducer(state: GameState, action: Action): GameState {
             } else if (kind === "amount") {
                 if (state.upgrades.amount >= 2) return state
                 nextUpgrades = {...nextUpgrades, amount: (state.upgrades.amount + 1) as Upgrades["amount"]}
+            } else if (kind === "workspace") {
+                if (state.upgrades.workspace >= 2) return state
+                nextUpgrades = {...nextUpgrades, workspace: (state.upgrades.workspace + 1) as Upgrades["workspace"]}
             }
 
             return {

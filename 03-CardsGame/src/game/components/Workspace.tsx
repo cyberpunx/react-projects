@@ -7,14 +7,16 @@ import {
     WORKSPACE_CONTAINER_IDLE,
     WORKSPACE_CONTAINER_OVER,
 } from "../theme/containers"
-import {WORKSPACE_SLOTS} from "../state/gameReducer"
+
+// capacidad del workspace se pasa por props
 
 interface WorkspaceProps {
     cards: CardType[]
+    capacity: number
     onRightClickCard: (cardId: string) => void
 }
 
-export const Workspace = ({cards, onRightClickCard}: WorkspaceProps) => {
+export const Workspace = ({cards, capacity, onRightClickCard}: WorkspaceProps) => {
     const {isOver, setNodeRef} = useDroppable({id: "workspace"})
 
     return (
@@ -26,7 +28,7 @@ export const Workspace = ({cards, onRightClickCard}: WorkspaceProps) => {
             ].join(" ")}
         >
             <div className={SECTION_TITLE_CLASS}>
-                WORKSPACE — cartas: {cards.length}/{WORKSPACE_SLOTS}
+                WORKSPACE — cartas: {cards.length}/{capacity}
             </div>
 
             <div

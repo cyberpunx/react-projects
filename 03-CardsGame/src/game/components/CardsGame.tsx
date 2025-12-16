@@ -123,6 +123,7 @@ export const CardsGame = () => {
 
                     <Workspace
                         cards={state.workspace}
+                        capacity={rules.workspaceSlots}
                         onRightClickCard={(cardId) => onRightClick("workspace", cardId)}
                     />
                 </div>
