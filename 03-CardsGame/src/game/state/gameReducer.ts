@@ -1,9 +1,10 @@
 import type {CardType} from "../components/Card"
+import {getSellPrice} from "../domain/economy"
 
 export const COMBINATOR_SLOTS = 3
-export const VALUE_LIMIT = 10
+export const VALUE_LIMIT = 7
 
-export type Origin = "belt" | "workspace" | "combinator" | "result"
+export type Origin = "belt" | "workspace" | "combinator" | "result" | "sellSlot"
 
 export type DragState =
     | { card: CardType, origin: Origin, slotIndex?: number }
@@ -15,6 +16,8 @@ export type GameState = {
     combinator: Array<CardType | null>
     result: CardType | null
     drag: DragState
+    sellSlot: CardType | null
+    money: number
 }
 
 export type Action =
@@ -26,6 +29,7 @@ export type Action =
     | { type: "DESTROY_DRAG" }
     | { type: "RIGHT_TO_WORKSPACE", payload: { slotIndex: number } }
     | { type: "COMBINE_CARDS" }
+    | { type: "SELL_CONFIRM" }
 
 
 export const initialState: GameState = {
@@ -34,6 +38,8 @@ export const initialState: GameState = {
     combinator: Array.from({length: COMBINATOR_SLOTS}, () => null),
     result: null,
     drag: null,
+    sellSlot: null,
+    money: 0,
 }
 
 const firstFreeSlot = (slots: Array<CardType | null>) =>
@@ -77,6 +83,10 @@ const removeFromOrigin = (
         if (state.result?.id !== id) return state
         return {...state, result: null}
     }
+    if (origin === "sellSlot") {
+        if (state.sellSlot?.id !== id) return state
+        return {...state, sellSlot: null}
+    }
 
     if (slotIndex === undefined) return state
     const next = [...state.combinator]
@@ -94,6 +104,7 @@ const findInOrigin = (
     if (origin === "workspace")
         return state.workspace.find((c) => c.id === id) ?? null
     if (origin === "result") return state.result && state.result.id === id ? state.result : null
+    if (origin === "sellSlot") return state.sellSlot && state.sellSlot.id === id ? state.sellSlot : null
 
     // combinator
     if (slotIndex === undefined) return null
@@ -153,6 +164,20 @@ export function reducer(state: GameState, action: Action): GameState {
                         ...state,
                         combinator: placed ?? state.combinator,
                         drag: null,
+                    }
+                }
+                if (overId === "sellSlot") {
+                    if (state.sellSlot === null) {
+                        return {
+                            ...state,
+                            sellSlot: card,
+                            drag: null,
+                        }
+                    } else {
+                        return {
+                            ...state,
+                            drag: null,
+                        }
                     }
                 }
             }
@@ -224,6 +249,17 @@ export function reducer(state: GameState, action: Action): GameState {
                 ...state,
                 combinator: emptied,
                 result: resultCard,
+            }
+        }
+
+        case "SELL_CONFIRM": {
+            const card = state.sellSlot
+            if (!card) return state
+            const income = getSellPrice(card.value)
+            return {
+                ...state,
+                money: state.money + income,
+                sellSlot: null,
             }
         }
 

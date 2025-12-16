@@ -3,10 +3,12 @@ import {snapCenterToCursor} from "@dnd-kit/modifiers"
 import {useEffect, useMemo, useReducer, useRef, useState} from "react"
 import {Workspace} from "./Workspace"
 import {Combinator} from "./Combinator"
+import {SellPanel} from "./SellPanel"
 import {CardPreview} from "./CardPreview"
 import {buildLanes, ConveyorBelt, LANE_COUNT, LANE_GAP,} from "./ConveyorBelt"
 import {CARD_WIDTH} from "./Card"
 import {COMBINATOR_SLOTS, initialState, reducer, type Origin,} from "../state/gameReducer"
+import {PRICE_TABLE} from "../domain/economy"
 import {randomInt} from "../lib/utils.ts"
 import {APP_CONTAINER_CLASS, LEFT_PANEL_CLASS} from "../theme/layout"
 import {createCard} from "../domain/cards"
@@ -107,6 +109,11 @@ export const CardsGame = () => {
             <div className={APP_CONTAINER_CLASS}>
                 {/* IZQUIERDA */}
                 <div className={LEFT_PANEL_CLASS}>
+                    <SellPanel
+                        card={state.sellSlot}
+                        onSell={() => dispatch({type: "SELL_CONFIRM"})}
+                    />
+
                     <Combinator
                         slotCount={COMBINATOR_SLOTS}
                         slots={state.combinator}
@@ -119,6 +126,34 @@ export const CardsGame = () => {
                         cards={state.workspace}
                         onRightClickCard={(cardId) => onRightClick("workspace", cardId)}
                     />
+                </div>
+
+                {/* COLUMNA CENTRAL */}
+                <div className="flex-1 flex flex-col items-center p-2">
+                    <div className="text-2xl font-bold">{state.money}$</div>
+
+                    {/* Tabla de precios */}
+                    <div className="mt-2 w-full max-w-sm p-5">
+                        <div className="text-sm opacity-70 mb-1 text-center">Lista de precios</div>
+                        <table className="w-full text-sm border-collapse">
+                            <thead>
+                            <tr className="text-center">
+                                <th className="border-b border-slate-500 pb-1 text-center">Valor</th>
+                                <th className="border-b border-slate-500 pb-1 text-center">Precio</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {Object.entries(PRICE_TABLE)
+                                .sort((a, b) => Number(a[0]) - Number(b[0]))
+                                .map(([value, price]) => (
+                                    <tr key={value}>
+                                        <td className="py-1 pr-2 text-center">{value}</td>
+                                        <td className="py-1 text-center">${price}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
                 {/* DERECHA */}
